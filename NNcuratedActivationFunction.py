@@ -3,13 +3,7 @@
 
 import numpy as np
 
-# activation - sigmoid function
-def sigmoid(x, deriv=False):
-    if(deriv==True):
-        return x*(1-x)
-    return 1/(1+np.exp(-x))
-
-def sinef(x, deriv=False):
+def sinf(x, deriv=False):
     if (deriv==True):
         return np.cos(x)
     return np.sin(x)
@@ -31,35 +25,39 @@ x = np.array(np.random.rand(n_data))
 y = np.array(x**2)
 
 # seed
-np.random.seed(1)
+np.random.seed(59)
 
-# synapse (weight) initialization with no bias
-syn0 = np.random.random((4,1))
-syn1 = np.random.random((4,1))
-syn2 = np.random.random((4,1))
-syn3 = np.random.random((4,1))
+# synapse (weight) initialization with bias
+syn0 = np.random.random((3,1))+1
+syn1 = np.random.random((3,1))+1
+syn2 = np.random.random((3,1))+1
 
 # training
 for j in range(n_data):
     # layers
     l0 = x[j] # input
-    l1in = np.array([sigmoid(l0),
-                   sinef(l0),
-                   cosf(l0),
-                   x2f(l0)])
-    l1 = np.dot(l1in, syn0)
+    l1 = np.array([[sinf(l0)],
+                   [cosf(l0)],
+                   [x2f(l0)]])
+
+    #l1 = np.dot(l1in, syn0)
+
     # output layer
-    l2 = np.dot(l1, syn1)
+    l2 = np.dot(l1, syn0)
 
     #backpropagation
     l2_error = y[j] - l2
-    l2_delta = np.array(l2_error*nonlin(l2, deriv=True)
-    l1_error = l2_delta.dot(syn1.T)
-    l1_delta = l1_error*nonlin(l1, deriv=True)
+    l2_delta = np.array(l2_error*np.array([sinf(l2, deriv=True),
+        cosf(l2, deriv=True),
+        x2f(l2, deriv=True)]))
+    l1_error = np.dot(l2_delta,syn0.T)
+    #l1_delta = np.array(l1_error*np.array([sinf(l1, deriv=True),
+    #                                        cosf(l1, deriv=True),
+    #                                        x2f(l1, deriv=True)))
 
     # update synapses
-    syn1 += l1.T.dot(l2_delta)
-    syn0 += l0.T.dot(l1_delta)
+    syn1 += np.dot(l1.T,l2_delta)
+    syn0 += np.dot(l0.T,l1_error)
 
 print('output after training')
 print(l2)
