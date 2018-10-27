@@ -24,6 +24,7 @@ w1 = np.array(np.random.random((a,1)))
 
 # input layer
 l0 = x
+
 aIn = np.dot(l0, w0.T)
 
 # activation
@@ -32,6 +33,10 @@ aMap = np.array((sinf(aIn[:,0]),cosf(aIn[:,1])))
 out = np.dot(aMap.T, w1)
 
 loss = (out - y)**2
-#delta1 = np.array((sinf(loss[:,0], deriv=True), cosf(loss[:,0], deriv=True)))
+delta_w1 = 2*loss
+w1 = np.dot(delta_w1,w1)
+print(w1)
+#delta_w0 = np.array((sinf(w1[:,0],deriv=True),cosf(w1[:,0],deriv=True)))
+#w0 = np.dot(delta_w0,w0)
+
 print(loss)
-#print(loss)
