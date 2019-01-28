@@ -1,42 +1,72 @@
+# following along with Siraj Raval demo from YouTube
+# bare bones neural network using only numpy
+
 import numpy as np
 
-def sinf(x, deriv=False):
-    if deriv==True:
-        return np.cos(x)
-    return np.sin(x)
+# sigmoid function
+def caf(x, deriv=False):
+    if(deriv==True):
+        return 2*x
+    return x**2
 
-def cosf(x, deriv=False):
-    if deriv==True:
-        return (-1)*np.sin(x)
-    return np.cos(x)
+def trueFunc(x):
+    return caf(x)
 
-n = 1000 # size of the data set
-a = 2 # number of curated activation functions
-np.random.seed(59)
+def taf(x, deriv=False):
+    if(deriv==True):
+        return x*(1-x)
+    return 1/(1+np.exp(-x))
 
-# labeled data
-x = np.array(np.random.random((n,1)))
-y = np.array((np.sin(x),1))
+# seed
+np.random.seed(1)
 
-# weight layers
-w0 = np.array(np.random.random((a,1)))
-w1 = np.array(np.random.random((a,1)))
+# synapse initialization
+syn = 2*np.random.random((1,2))-1
 
-# input layer
-l0 = x
+# training
+for j in range(1000):
 
-aIn = np.dot(l0, w0.T)
+    if (j % 500) == 0:
+        print(syn)
+        print(f'synapse shape = {syn.shape}')
+    # layers
+    l0 = 3 #np.array([np.random.ranf()*100])
+    y_true = trueFunc(l0)
 
-# activation
-aMap = np.array((sinf(aIn[:,0]),cosf(aIn[:,1])))
+    if (j % 500) == 0:
+        print(f'l0 = {l0}')
+        #print(f'input shape = {l0.shape}')
 
-out = np.dot(aMap.T, w1)
+    i0 = np.dot(l0,syn)
 
-loss = (out - y)**2
-delta_w1 = 2*loss
-w1 = np.dot(delta_w1,w1)
-print(w1)
-#delta_w0 = np.array((sinf(w1[:,0],deriv=True),cosf(w1[:,0],deriv=True)))
-#w0 = np.dot(delta_w0,w0)
+    if (j % 500) == 0:
+        print(i0)
+        print(f'i0 shape = {i0.shape}')
 
-print(loss)
+    l1 = np.array([caf(i0[0]),taf(i0[1])])
+
+    if (j % 500) == 0:
+        print(l1)
+        print(f'l1 shape is {l1.shape}')
+
+    y_hat = np.sum(l1)
+
+    # backpropagation
+    residual = trueFunc(l0) - y_hat
+
+    if (j % 500) == 0:
+        print(f'in = {l0}, y_hat = {y_hat}, y_true = {y_true}, residual={residual}')
+        #print(f'residual shape is {residual.shape}')
+
+    l1_back = np.array([caf(l1[0],deriv=True), taf(l1[1],deriv=True)]).T
+    if (j % 500) == 0:
+        print(l1_back)
+        print(f'l1_back shape is {l1_back.shape}')
+
+    delta = residual*l1_back
+    if (j % 500) == 0:
+        print(delta)
+        print(f'delta shape is {delta.shape}')
+    syn += l1*delta
+
+print(f'Final weights after training are {syn}')
